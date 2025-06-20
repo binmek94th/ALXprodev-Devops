@@ -22,10 +22,10 @@ format_num() {
   echo "$formatted" | sed 's/\.0$//'
 }
 
-NAME=$(capitalize "$name")
+name=$(capitalize "$name")
 type=$(capitalize "$type")
 
 formatted_weight=$(format_num "$weight_hecto")
 formatted_height=$(format_num "$height_deci")
 
-echo "$NAME is of type $type, weighs ${formatted_weight}kg, and is ${formatted_height}m tall."
+echo "$name is of type $type, weighs ${formatted_weight}kg, and is ${formatted_height}m tall."
