@@ -1,0 +1,30 @@
+#!/bin/bash
+
+POKEMON_LIST=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
+BASE_API_URL="https://pokeapi.co/api/v2/pokemon"
+LOGFILE="errors.txt"
+DELAY=1
+
+echo "Starting parallel data fetch..."
+
+: > "$LOGFILE"
+
+for pokemon in "${POKEMON_LIST[@]}"; do
+    (
+        echo "Fetching $pokemon..."
+        HTTP_CODE=$(curl -s -w "%{http_code}" -o "${pokemon}.json" "${BASE_API_URL}/${pokemon}" 2>>"$LOGFILE")
+
+        if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "❌ Failed to fetch $pokemon (HTTP $HTTP_CODE)" >> "$LOGFILE"
+            rm -f "${pokemon}.json"  # remove corrupted file
+        else
+            echo "✅ $pokemon.json saved successfully."
+        fi
+    ) &
+
+    sleep "$DELAY"
+done
+
+wait
+
+echo "All fetch tasks completed."
