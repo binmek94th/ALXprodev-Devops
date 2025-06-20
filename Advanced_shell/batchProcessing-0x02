@@ -7,16 +7,23 @@ DELAY=2
 
 for pokemon in "${POKEMON_LIST[@]}"; do
     echo "Fetching data for $pokemon..."
+    for i in {1..3}; do
+      success=false
+        HTTP_CODE=$(curl -s -w "%{http_code}" -o "${pokemon}.json" "${BASE_API_URL}/${pokemon}" 2>>"$LOGFILE")
 
-    HTTP_CODE=$(curl -s -w "%{http_code}" -o "${pokemon}.json" "${BASE_API_URL}/${pokemon}" 2>>"$LOGFILE")
-
-    if [ "$HTTP_CODE" -ne 200 ]; then
-        echo "Failed to fetch $pokemon (HTTP code $HTTP_CODE)" >> "$LOGFILE"
-        continue
+        if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "Saved ${pokemon}.json"
+            success=true
+            break
+        else
+            echo "Retry #$i failed for $pokemon (HTTP code $HTTP_CODE)" >> "$LOGFILE"
+            sleep 1
+        fi
+      done
+    if [ "$success" = false ]; then
+            echo "❌ Failed to fetch $pokemon after 3 attempts." >> "$LOGFILE"
     fi
-
-    echo "Saved ${pokemon}.json"
-
+    success=false
     sleep "$DELAY"
 done
 
