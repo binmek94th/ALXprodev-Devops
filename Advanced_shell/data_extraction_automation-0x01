@@ -1,0 +1,20 @@
+#!/bin/bash
+
+DATAFILE="data.json"
+
+if [ ! -f "$DATAFILE" ]; then
+  echo "Error: $DATAFILE not found!"
+  exit 1
+fi
+
+# Parse values
+NAME=$(jq -r '.name' "$DATAFILE" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
+TYPE=$(jq -r '.types[0].type.name' "$DATAFILE" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
+WEIGHT_HECTO=$(jq -r '.weight' "$DATAFILE")
+HEIGHT_DECI=$(jq -r '.height' "$DATAFILE")
+
+WEIGHT_KG=$(echo "scale=1; $WEIGHT_HECTO / 10" | bc)
+
+HEIGHT_M=$(echo "scale=1; $HEIGHT_DECI / 10" | bc)
+
+echo "$NAME is of type $TYPE, weighs ${WEIGHT_KG}kg, and is ${HEIGHT_M}m tall."
