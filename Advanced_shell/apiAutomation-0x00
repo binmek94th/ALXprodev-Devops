@@ -1,2 +1,2 @@
 #!/bin/bash
-curl -s -o response.json -w "%{http_code}" "https://pokeapi.co/api/v2/pokemon/" 2>>"errors.txt"
+curl -s -o data.json -w "%{http_code}" "https://pokeapi.co/api/v2/pokemon/" 2>>"errors.txt"
