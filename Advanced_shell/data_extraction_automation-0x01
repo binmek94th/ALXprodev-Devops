@@ -1,20 +1,31 @@
 #!/bin/bash
 
-DATAFILE="data.json"
+DATAFILE="pikachu_detail.json"
 
 if [ ! -f "$DATAFILE" ]; then
   echo "Error: $DATAFILE not found!"
   exit 1
 fi
 
-# Parse values
-NAME=$(jq -r '.name' "$DATAFILE" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
-TYPE=$(jq -r '.types[0].type.name' "$DATAFILE" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
-WEIGHT_HECTO=$(jq -r '.weight' "$DATAFILE")
-HEIGHT_DECI=$(jq -r '.height' "$DATAFILE")
+name=$(jq -r '.name' "$DATAFILE")
+type=$(jq -r '.types[0].type.name' "$DATAFILE")
+weight_hecto=$(jq -r '.weight' "$DATAFILE")
+height_deci=$(jq -r '.height' "$DATAFILE")
 
-WEIGHT_KG=$(echo "scale=1; $WEIGHT_HECTO / 10" | bc)
+capitalize() {
+  echo "$1" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}'
+}
 
-HEIGHT_M=$(echo "scale=1; $HEIGHT_DECI / 10" | bc)
+format_num() {
+  local num=$1
+  local formatted=$(echo "scale=1; $num / 10" | bc)
+  echo "$formatted" | sed 's/\.0$//'
+}
 
-echo "$NAME is of type $TYPE, weighs ${WEIGHT_KG}kg, and is ${HEIGHT_M}m tall."
+NAME=$(capitalize "$name")
+TYPE=$(capitalize "$type")
+
+FORMATTED_WEIGHT=$(format_num "$weight_hecto")
+FORMATTED_HEIGHT=$(format_num "$height_deci")
+
+echo "$NAME is of type $TYPE, weighs ${FORMATTED_WEIGHT}kg, and is ${FORMATTED_HEIGHT}m tall."
