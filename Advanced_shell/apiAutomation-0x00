@@ -1,2 +1,38 @@
 #!/bin/bash
-curl -s -o data.json -w "%{http_code}" "https://pokeapi.co/api/v2/pokemon/" 2>>"errors.txt"
+
+APIURL="https://pokeapi.co/api/v2/pokemon"
+LOGFILE="errors.txt"
+
+while true; do
+    echo "Fetching from $APIURL..."
+
+    HTTP_CODE=$(curl -s -o data.json -w "%{http_code}" "$APIURL" 2>>"$LOGFILE")
+
+    if [ "$HTTP_CODE" -ne 200 ]; then
+        echo "❌ Request failed with status $HTTP_CODE" >> "$LOGFILE"
+        break
+    fi
+
+    # Check if Pikachu is in the current page
+    if jq -e '.results[] | select(.name == "pikachu")' data.json > /dev/null; then
+        PIKA_URL=$(jq -r '.results[] | select(.name == "pikachu") | .url' data.json)
+        
+        echo "Fetching Pikachu details from $PIKA_URL ..."
+        
+        # Fetch Pikachu's detailed info
+        curl -s "$PIKA_URL" -o data.json
+        
+        break
+    fi
+
+    NEXT_URL=$(jq -r '.next' data.json)
+
+    if [ "$NEXT_URL" = "null" ]; then
+        echo "Reached the end — Pikachu not found!"
+        break
+    fi
+
+    APIURL="$NEXT_URL"
+    sleep 1
+done
+
