@@ -23,9 +23,9 @@ format_num() {
 }
 
 NAME=$(capitalize "$name")
-TYPE=$(capitalize "$type")
+type=$(capitalize "$type")
 
-FORMATTED_WEIGHT=$(format_num "$weight_hecto")
-FORMATTED_HEIGHT=$(format_num "$height_deci")
+formatted_weight=$(format_num "$weight_hecto")
+formatted_height=$(format_num "$height_deci")
 
-echo "$NAME is of type $TYPE, weighs ${FORMATTED_WEIGHT}kg, and is ${FORMATTED_HEIGHT}m tall."
+echo "$NAME is of type $type, weighs ${formatted_weight}kg, and is ${formatted_height}m tall."
